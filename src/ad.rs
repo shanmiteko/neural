@@ -185,14 +185,8 @@ mod tests {
         let f = PtrVar::new(1.) / (x.clone().pow(PtrVar::new(2.)) + y.clone().pow(PtrVar::new(2.)))
             - x.clone() * y.clone();
         f.calc_grad();
-        println!("{}", x.grad());
-        println!(
-            "x = {}\ny = {}\nx.grad = {}\ny.grad = {}\nf = {}",
-            x.value(),
-            y.value(),
-            x.grad(),
-            y.grad(),
-            f.value()
-        );
+        assert_eq!(x.grad(), -1.16);
+        assert_eq!(y.grad(), -2.08);
+        assert_eq!(f.value(), -1.8);
     }
 }
