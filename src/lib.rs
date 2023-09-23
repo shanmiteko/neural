@@ -5,20 +5,20 @@ mod autodiff;
 use autodiff::PtrVar;
 
 #[derive(Debug)]
-struct Neuron {
-    weights: Vec<PtrVar>,
-    bias: PtrVar,
+pub struct Neuron {
+    pub weights: Vec<PtrVar>,
+    pub bias: PtrVar,
 }
 
 #[derive(Debug)]
-struct NonInputLayer {
-    neurons: Vec<Neuron>,
+pub struct NonInputLayer {
+    pub neurons: Vec<Neuron>,
 }
 
 #[derive(Debug)]
 pub struct NeuralNetwork {
     input_num: usize,
-    non_input_layers: Vec<NonInputLayer>,
+    pub non_input_layers: Vec<NonInputLayer>,
 }
 
 impl NeuralNetwork {
@@ -95,43 +95,5 @@ impl NeuralNetwork {
                     distance + (pred_real.0.clone() - pred_real.1.clone()).pow(PtrVar::new(2.))
                 })
         })
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::NeuralNetwork;
-
-    #[test]
-    fn nn_test() {
-        const I: usize = 2;
-        const O: usize = 1;
-        let data: Vec<[f64; I + O]> = vec![[0., 0., 0.], [0., 1., 1.], [1., 0., 1.], [1., 1., 0.]];
-        let lr = 1.0;
-
-        let mut nn = NeuralNetwork::init(&[I, 5, O]);
-
-        for _ in 0..1000 {
-            let loss = nn.calc_loss::<{ I + O }>(&data);
-            loss.calc_grad();
-            nn.non_input_layers.iter_mut().for_each(|nil| {
-                nil.neurons.iter_mut().for_each(|n| {
-                    n.weights.iter_mut().for_each(|w| {
-                        w.value_mut(w.value() - w.grad() * lr);
-                        w.grad_mut(0.);
-                    });
-                    n.bias.value_mut(n.bias.value() - n.bias.grad() * lr);
-                    n.bias.grad_mut(0.);
-                })
-            });
-        }
-        let r = nn.forward(&[1., 0.]); //1
-        println!("{r:?}");
-        let r = nn.forward(&[1., 1.]); //0
-        println!("{r:?}");
-        let r = nn.forward(&[0., 0.]); //0
-        println!("{r:?}");
-        let r = nn.forward(&[0., 1.]); //1
-        println!("{r:?}");
     }
 }
